@@ -1249,7 +1249,7 @@ export class PacketHandler {
     // logger.debug(`[数据转发-开始] 开始处理数据转发，来源: ${JSON.stringify(addr)}`);
     // 增加 TTL
     const newTtl = packet.incr_ttl();
-    if (newTtl > 1) {
+    if (newTtl >= 0) {
       // logger.debug(`[数据转发-TTL] TTL递增，新值: ${newTtl}`);
       // 检查是否禁用中继
       if (this.env.DISABLE_RELAY === "1") {
@@ -1307,6 +1307,8 @@ export class PacketHandler {
   }
 
   async forwardPacket(linkContext, packet) {
+    // 添加TTL递增
+    packet.incr_ttl();
     const destination = packet.destination;
     // logger.debug(`[数据包转发-开始] 开始转发数据包，目标: ${this.formatIp(destination)}`);
 
@@ -1338,6 +1340,8 @@ export class PacketHandler {
   }
 
   async broadcastPacket(linkContext, packet) {
+    // 添加TTL递增
+    packet.incr_ttl();
     const networkInfo = linkContext.network_info;
     const sender = packet.source;
     // logger.info(`[广播包-开始] 开始广播数据包，发送者: ${this.formatIp(sender)}`);
@@ -1357,6 +1361,8 @@ export class PacketHandler {
   }
 
   async forwardToDestination(linkContext, packet, destination) {
+    // 添加TTL递增
+    packet.incr_ttl();
     // logger.debug(`[目标转发-开始] 开始转发到指定目标: ${this.formatIp(destination)}`);
     const targetClient = linkContext.network_info.clients.get(destination);
     if (targetClient && targetClient.online && targetClient.tcp_sender) {
